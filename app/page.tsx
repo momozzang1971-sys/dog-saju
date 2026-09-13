@@ -6,6 +6,8 @@ import { computeDogFortune, type DogFortuneResult } from "@/lib/dog-fortune";
 import { COAT_COLOR_OPTIONS } from "@/lib/data/coat-color-map";
 import { TEMPERAMENT_OPTIONS } from "@/lib/data/temperament-map";
 import { BREED_HEALTH_DATA, findBreedHealthInfo } from "@/lib/data/breed-health";
+import { LUCKY_INFO } from "@/lib/data/lucky";
+import { buildOverviewText } from "@/lib/overview";
 import { saveDogProfile } from "@/lib/profile-storage";
 import ElementBadge from "@/components/ElementBadge";
 import DailyMoodBanner from "@/components/DailyMoodBanner";
@@ -102,6 +104,10 @@ export default function Home() {
   const healthInfo = findBreedHealthInfo(breed || null);
   const wuxingOrder: Array<keyof DogSajuResult["wuxingCount"]> = ["목", "화", "토", "금", "수"];
   const maxCount = saju ? Math.max(1, ...wuxingOrder.map((k) => saju.wuxingCount[k])) : 1;
+  const overviewText = fortune
+    ? buildOverviewText(name, fortune.dominant, fortune.secondary)
+    : "";
+  const lucky = fortune ? LUCKY_INFO[fortune.dominant] : null;
 
   return (
     <main className="mx-auto w-full max-w-md flex-1 px-4 py-8">
@@ -369,7 +375,32 @@ export default function Home() {
                 </span>
               ))}
             </div>
-            <p className="mt-3 rounded-lg bg-orange-50/60 p-2.5 text-sm text-neutral-700">
+
+            <p className="mt-4 border-l-2 border-orange-200 pl-3 text-sm leading-relaxed text-neutral-700">
+              {overviewText}
+            </p>
+
+            {lucky && (
+              <div className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-neutral-700">
+                <p className="font-semibold text-amber-800">🍀 오늘의 행운 정보</p>
+                <div className="mt-1.5 grid grid-cols-3 gap-2 text-center text-xs">
+                  <div>
+                    <div className="text-neutral-400">산책 방향</div>
+                    <div className="mt-0.5 font-medium text-neutral-700">{lucky.direction}</div>
+                  </div>
+                  <div>
+                    <div className="text-neutral-400">어울리는 색</div>
+                    <div className="mt-0.5 font-medium text-neutral-700">{lucky.color}</div>
+                  </div>
+                  <div>
+                    <div className="text-neutral-400">행운의 숫자</div>
+                    <div className="mt-0.5 font-medium text-neutral-700">{lucky.number}</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <p className="mt-4 rounded-lg bg-orange-50/60 p-2.5 text-sm text-neutral-700">
               🐾 이럴 때 이런 모습이에요 · {fortune.template.detail}
             </p>
             <p className="mt-3 text-sm text-neutral-700">
