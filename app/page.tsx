@@ -23,14 +23,19 @@ function to24Hour(ampm: AmPm, hour12: number): number {
   return hour12 === 12 ? 12 : hour12 + 12;
 }
 
+const INITIAL_YEAR = "2022";
+const INITIAL_MONTH = "1";
+const INITIAL_DAY = "1";
+
 export default function Home() {
   const [name, setName] = useState("");
   const [dateKind, setDateKind] = useState<BirthDateKind>("exact");
   const [calendarType, setCalendarType] = useState<CalendarType>("solar");
-  const [year, setYear] = useState("2022");
-  const [month, setMonth] = useState("1");
-  const [day, setDay] = useState("1");
-  const [timeKnown, setTimeKnown] = useState(false);
+  const [year, setYear] = useState(INITIAL_YEAR);
+  const [month, setMonth] = useState(INITIAL_MONTH);
+  const [day, setDay] = useState(INITIAL_DAY);
+  // 시각을 모르는 견주가 더 많다는 전제 하에, 기본값은 "몰라요"(체크됨)로 시작한다.
+  const [timeUnknown, setTimeUnknown] = useState(true);
   const [ampm, setAmpm] = useState<AmPm>("AM");
   const [hour12, setHour12] = useState("12");
   const [breed, setBreed] = useState("");
@@ -55,7 +60,7 @@ export default function Home() {
       year: Number(year),
       month: Number(month),
       day: Number(day),
-      hour: dateKind === "adoption" || !timeKnown ? null : to24Hour(ampm, Number(hour12)),
+      hour: dateKind === "adoption" || timeUnknown ? null : to24Hour(ampm, Number(hour12)),
     });
 
     const fortuneResult = computeDogFortune({
@@ -76,8 +81,22 @@ export default function Home() {
   }
 
   function handleReset() {
+    // 결과뿐 아니라 입력 폼도 전부 초기화한다 — 그대로 두면 다른 아이를 입력하려 할 때
+    // 이전 아이의 이름·견종·체크값이 남아 있어 "결과가 그대로"인 것처럼 보인다.
     setSaju(null);
     setFortune(null);
+    setName("");
+    setDateKind("exact");
+    setCalendarType("solar");
+    setYear(INITIAL_YEAR);
+    setMonth(INITIAL_MONTH);
+    setDay(INITIAL_DAY);
+    setTimeUnknown(true);
+    setAmpm("AM");
+    setHour12("12");
+    setBreed("");
+    setCoatColorValue("");
+    setTemperamentValues([]);
   }
 
   const healthInfo = findBreedHealthInfo(breed || null);
@@ -188,21 +207,29 @@ export default function Home() {
           {dateKind === "exact" && (
             <div>
               <span className="block text-sm font-medium text-neutral-700">태어난 시각</span>
-              <div className="mt-1 flex flex-wrap items-center gap-2">
+              <label className="flex items-center gap-1.5 text-sm text-neutral-600">
+                <input
+                  type="checkbox"
+                  checked={timeUnknown}
+                  onChange={(e) => setTimeUnknown(e.target.checked)}
+                />
+                태어난 시각을 몰라요
+              </label>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
                 <select
                   value={ampm}
-                  disabled={!timeKnown}
+                  disabled={timeUnknown}
                   onChange={(e) => setAmpm(e.target.value as AmPm)}
-                  className="rounded-md border border-neutral-300 px-2 py-1.5 text-sm disabled:bg-neutral-100"
+                  className="rounded-md border border-neutral-300 px-2 py-1.5 text-sm disabled:bg-neutral-100 disabled:text-neutral-400"
                 >
                   <option value="AM">오전</option>
                   <option value="PM">오후</option>
                 </select>
                 <select
                   value={hour12}
-                  disabled={!timeKnown}
+                  disabled={timeUnknown}
                   onChange={(e) => setHour12(e.target.value)}
-                  className="rounded-md border border-neutral-300 px-2 py-1.5 text-sm disabled:bg-neutral-100"
+                  className="rounded-md border border-neutral-300 px-2 py-1.5 text-sm disabled:bg-neutral-100 disabled:text-neutral-400"
                 >
                   {HOURS_12.map((h) => (
                     <option key={h} value={h}>
@@ -210,16 +237,8 @@ export default function Home() {
                     </option>
                   ))}
                 </select>
-                <label className="ml-2 flex items-center gap-1 text-sm text-neutral-600">
-                  <input
-                    type="checkbox"
-                    checked={timeKnown}
-                    onChange={(e) => setTimeKnown(e.target.checked)}
-                  />
-                  시각을 알아요
-                </label>
               </div>
-              {!timeKnown && (
+              {timeUnknown && (
                 <p className="mt-1 text-xs text-amber-600">
                   시각을 모르면 시주 없이 삼주(년·월·일)로만 풀이해요.
                 </p>
@@ -350,6 +369,9 @@ export default function Home() {
                 </span>
               ))}
             </div>
+            <p className="mt-3 rounded-lg bg-orange-50/60 p-2.5 text-sm text-neutral-700">
+              🐾 이럴 때 이런 모습이에요 · {fortune.template.detail}
+            </p>
             <p className="mt-3 text-sm text-neutral-700">
               <strong>강점</strong> · {fortune.template.strength}
             </p>
