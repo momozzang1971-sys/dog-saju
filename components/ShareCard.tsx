@@ -63,6 +63,17 @@ export default function ShareCard({
             </span>
           ))}
         </div>
+
+        <div className="mt-4 space-y-2 rounded-2xl bg-white/70 p-4 text-left text-sm text-neutral-700">
+          <p>🐾 {template.detail}</p>
+          <p>
+            <strong>강점</strong> · {template.strength}
+          </p>
+          <p>
+            <strong>주의</strong> · {template.caution}
+          </p>
+        </div>
+
         <p className="mt-4 text-[11px] text-neutral-500">
           {element}({meta.hanja}) 기운 · 재미로 보는 콘텐츠예요
         </p>

@@ -104,10 +104,13 @@ export default function CompatibilitySection({
             const compat = getCompatibility(myDominant, result.dominant);
             return (
               <div className="mt-2">
-                <p className="text-sm font-semibold">
-                  {compat.type} 궁합 · 점수 {compat.score}점
+                <p className="text-sm font-semibold text-neutral-800">
+                  {compat.type} 궁합 · {compat.score}점 · {compat.keyword}
                 </p>
                 <p className="mt-1 text-sm text-neutral-600">{compat.message}</p>
+                <p className="mt-2 rounded-lg bg-white p-2.5 text-sm text-neutral-700">
+                  🎾 같이 해보면 좋은 것 · {compat.activityTip}
+                </p>
               </div>
             );
           })()}
